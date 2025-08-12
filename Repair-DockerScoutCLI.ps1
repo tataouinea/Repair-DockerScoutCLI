@@ -148,7 +148,7 @@ try {
             Write-Ok "Created: $destDir"
         }
         else {
-            Write-Warn "Skipped creating '$destDir'. Installation step may be skipped if required files are missing."
+            throw "Cannot proceed without destination directory '$destDir'. User declined creation."
         }
     }
     else {
