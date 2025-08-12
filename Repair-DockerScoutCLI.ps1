@@ -260,7 +260,12 @@ try {
 
     # Ensure cliPluginsExtraDirs is an array and contains $ensureDir
     if (-not ($configObj.PSObject.Properties.Name -contains 'cliPluginsExtraDirs')) {
-        $configObj.cliPluginsExtraDirs = @()
+        if ($configObj -is [hashtable]) {
+            $configObj['cliPluginsExtraDirs'] = @()
+        }
+        else {
+            $null = Add-Member -InputObject $configObj -NotePropertyName 'cliPluginsExtraDirs' -NotePropertyValue @() -Force
+        }
     }
 
     # If it's a string, convert to array
