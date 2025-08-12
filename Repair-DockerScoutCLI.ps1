@@ -70,12 +70,12 @@ function Write-Err {
 }
 function Confirm-Action {
     param(
-        [Parameter(Mandatory=$true)][string]$Message
+        [Parameter(Mandatory = $true)][string]$Message
     )
     if ($Yes) { return $true }
     $choices = @(
-        (New-Object System.Management.Automation.Host.ChoiceDescription '&Yes','Proceed with this action.'),
-        (New-Object System.Management.Automation.Host.ChoiceDescription '&No','Skip this action.')
+        (New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', 'Proceed with this action.'),
+        (New-Object System.Management.Automation.Host.ChoiceDescription '&No', 'Skip this action.')
     )
     $result = $Host.UI.PromptForChoice('Confirmation', $Message, $choices, 1)
     return ($result -eq 0)
@@ -86,14 +86,15 @@ function Get-OsArchLabel {
     try {
         $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
         switch ($arch) {
-            'x64'   { return 'amd64' }
+            'x64' { return 'amd64' }
             'arm64' { return 'arm64' }
             default {
                 # Fallback to env var
                 if ($env:PROCESSOR_ARCHITECTURE -match 'ARM64') { return 'arm64' } else { return 'amd64' }
             }
         }
-    } catch {
+    }
+    catch {
         if ($env:PROCESSOR_ARCHITECTURE -match 'ARM64') { return 'arm64' } else { return 'amd64' }
     }
 }
@@ -109,7 +110,8 @@ try {
     $IsOnWindows = $false
     try {
         $IsOnWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
-    } catch {
+    }
+    catch {
         $IsOnWindows = ($env:OS -eq 'Windows_NT')
     }
     if (-not $IsOnWindows) {
@@ -144,10 +146,12 @@ try {
         if (Confirm-Action "Create directory '$destDir'?") {
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null
             Write-Ok "Created: $destDir"
-        } else {
+        }
+        else {
             Write-Warn "Skipped creating '$destDir'. Installation step may be skipped if required files are missing."
         }
-    } else {
+    }
+    else {
         Write-Ok "Directory exists: $destDir"
     }
 
@@ -158,7 +162,8 @@ try {
         Write-Info "docker-scout.exe not found in destination. Preparing download and install..."
         if (-not (Confirm-Action "Download and install Docker Scout CLI v$version ($arch) to '$destDir'?")) {
             Write-Warn "User chose not to download/install. Skipping to config update."
-        } else {
+        }
+        else {
             # Create unique temp working area
             $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
             $tempRoot = Join-Path $env:TEMP "RepairDockerScoutCLI_${stamp}_$([Guid]::NewGuid().ToString('N'))"
@@ -170,11 +175,13 @@ try {
             try {
                 # Enforce TLS 1.2 for GitHub
                 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            } catch { }
+            }
+            catch { }
 
             if ($PSVersionTable.PSVersion.Major -ge 6) {
                 Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath
-            } else {
+            }
+            else {
                 Invoke-WebRequest -UseBasicParsing -Uri $downloadUrl -OutFile $zipPath
             }
             $size = (Get-Item $zipPath).Length
@@ -198,11 +205,13 @@ try {
             try {
                 Remove-Item -Recurse -Force -LiteralPath $tempRoot
                 Write-Info "Cleaned up temporary files."
-            } catch {
+            }
+            catch {
                 Write-Warn "Could not remove temp directory '$tempRoot'. You may delete it manually."
             }
         }
-    } else {
+    }
+    else {
         Write-Ok "docker-scout.exe already present. Skipping download/install."
     }
 
@@ -215,7 +224,8 @@ try {
         if (Confirm-Action "Create directory '$configParent' for Docker config?") {
             New-Item -ItemType Directory -Path $configParent -Force | Out-Null
             Write-Ok "Created: $configParent"
-        } else {
+        }
+        else {
             throw "Cannot proceed without Docker config directory."
         }
     }
@@ -227,7 +237,8 @@ try {
         try {
             $raw = Get-Content -LiteralPath $configPath -Raw -ErrorAction Stop
             $configObj = $raw | ConvertFrom-Json -ErrorAction Stop
-        } catch {
+        }
+        catch {
             Write-Warn "Existing config.json could not be parsed as JSON."
             if (-not (Confirm-Action "Backup and replace config.json with a minimal valid JSON?")) {
                 throw "Aborting to avoid overwriting an unparseable config.json without consent."
@@ -238,7 +249,8 @@ try {
             Write-Ok "Backup created: $backupPath"
             $configObj = [ordered]@{}
         }
-    } else {
+    }
+    else {
         Write-Warn "Docker config.json does not exist."
         if (-not (Confirm-Action "Create a new minimal config.json at '$configPath'?")) {
             throw "Cannot continue without a config.json to update."
@@ -271,7 +283,8 @@ try {
 
     if ($alreadyPresent) {
         Write-Ok "cliPluginsExtraDirs already contains: $ensureDir"
-    } else {
+    }
+    else {
         if (Confirm-Action "Add '$ensureDir' to cliPluginsExtraDirs in config.json?") {
             $configObj.cliPluginsExtraDirs = @($current + $ensureDir)
 
@@ -288,7 +301,8 @@ try {
             $json = ($json | Out-String)
             Set-Content -LiteralPath $configPath -Value $json -Encoding UTF8
             Write-Ok "Updated: $configPath"
-        } else {
+        }
+        else {
             Write-Warn "Skipped updating cliPluginsExtraDirs."
         }
     }
@@ -301,7 +315,8 @@ try {
 
     Write-Ok "Done."
 
-} catch {
+}
+catch {
     Write-Err $_.Exception.Message
     if ($_.InvocationInfo -and $_.InvocationInfo.PositionMessage) {
         Write-Err ("At: " + $_.InvocationInfo.PositionMessage)
