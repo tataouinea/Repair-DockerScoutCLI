@@ -26,7 +26,7 @@ This script installs the Docker Scout CLI plugin under your user profile and con
 - Windows PowerShell 5.1 (preinstalled with Windows). PowerShell 7+ is optional but supported.
 - Internet connectivity to download from GitHub releases.
 
-## Quick run (once this repo is public)
+## Quick run
 
 Using Windows PowerShell 5.1 (cmd.exe or Windows Terminal):
 
