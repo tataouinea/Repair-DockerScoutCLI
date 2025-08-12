@@ -129,7 +129,6 @@ try {
     Write-Info "Target Docker Scout CLI v$version for $arch"
     Write-Info "Release URL: $downloadUrl"
 
-    $home = [Environment]::GetFolderPath('UserProfile')
     $destDir = Join-Path $home ".docker\scout"
     $configPath = Join-Path $home ".docker\config.json"
 
