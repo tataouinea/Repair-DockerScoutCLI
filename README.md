@@ -31,19 +31,19 @@ This script installs the Docker Scout CLI plugin under your user profile and con
 Using Windows PowerShell 5.1 (cmd.exe or Windows Terminal):
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing 'https://raw.githubusercontent.com/<your_repo>/main/Repair-DockerScoutCLI.ps1')"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing 'https://raw.githubusercontent.com/tataouinea/Repair-DockerScoutCLI/main/Repair-DockerScoutCLI.ps1')"
 ```
 
 Using PowerShell 7+ (pwsh.exe):
 
 ```powershell
-pwsh -NoProfile -Command "iex (irm 'https://raw.githubusercontent.com/<your_repo>/main/Repair-DockerScoutCLI.ps1')"
+pwsh -NoProfile -Command "iex (irm 'https://raw.githubusercontent.com/tataouinea/Repair-DockerScoutCLI/main/Repair-DockerScoutCLI.ps1')"
 ```
 
 - Add `-Yes` to auto-confirm all prompts (non-interactive). Because `iex` executes the script immediately, the simplest way is to download to a temp file and run it with `-Yes`:
 
 ```powershell
-$src = 'https://raw.githubusercontent.com/<your_repo>/main/Repair-DockerScoutCLI.ps1'
+$src = 'https://raw.githubusercontent.com/tataouinea/Repair-DockerScoutCLI/main/Repair-DockerScoutCLI.ps1'
 $tmp = Join-Path $env:TEMP 'Repair-DockerScoutCLI.ps1'
 iwr -UseBasicParsing $src -OutFile $tmp
 powershell -NoProfile -ExecutionPolicy Bypass -File $tmp -Yes

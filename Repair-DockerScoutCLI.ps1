@@ -41,7 +41,7 @@
 
     Usage (example via iex once this script is published in a repo)
     --------------------------------------------------------------
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing 'https://raw.githubusercontent.com/<your_repo>/main/Repair-DockerScoutCLI.ps1')"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing 'https://raw.githubusercontent.com/tataouinea/Repair-DockerScoutCLI/main/Repair-DockerScoutCLI.ps1')"
 #>
 [CmdletBinding()]
 param(
