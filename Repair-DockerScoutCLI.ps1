@@ -203,7 +203,8 @@ try {
 
     Write-Ok "PowerShell $psv detected on Windows."
 
-    $version = '1.18.2'
+    # Resolve latest version via GitHub redirect (e.g., .../releases/tag/v1.18.3)
+    $version = Get-LatestDockerScoutVersion
     $arch = Get-OsArchLabel
     $baseUrl = "https://github.com/docker/scout-cli/releases/download/v$version"
     $zipName = if ($arch -eq 'arm64') { "docker-scout_${version}_windows_arm64.zip" } else { "docker-scout_${version}_windows_amd64.zip" }
