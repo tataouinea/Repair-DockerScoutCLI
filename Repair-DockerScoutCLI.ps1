@@ -99,6 +99,34 @@ function Get-OsArchLabel {
     }
 }
 
+function Get-InstalledDockerScoutVersion {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExePath
+    )
+    if (-not (Test-Path -LiteralPath $ExePath -PathType Leaf)) { return $null }
+    try {
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $ExePath
+        $psi.Arguments = 'version'
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $p = [System.Diagnostics.Process]::Start($psi)
+        $out = $p.StandardOutput.ReadToEnd()
+        $err = $p.StandardError.ReadToEnd()
+        $p.WaitForExit()
+        $combined = "$out`n$err"
+        # Look for vX.Y.Z
+        $m = [regex]::Match($combined, 'v(?<v>\d+\.\d+\.\d+)')
+        if ($m.Success) { return $m.Groups['v'].Value }
+        return $null
+    }
+    catch {
+        return $null
+    }
+}
+
 try {
     Write-Info "Checking PowerShell version and environment..."
     $psv = $PSVersionTable.PSVersion
