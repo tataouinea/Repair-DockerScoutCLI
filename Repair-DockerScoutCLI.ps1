@@ -127,6 +127,61 @@ function Get-InstalledDockerScoutVersion {
     }
 }
 
+function Get-LatestDockerScoutVersion {
+    <#
+        Resolves the latest Docker Scout CLI version by following the GitHub
+        releases "latest" redirect and extracting the vX.Y.Z tag.
+
+        Returns: version string like "1.18.3" (without the leading 'v').
+    #>
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    } catch {}
+
+    $latestUrl = 'https://github.com/docker/scout-cli/releases/latest'
+    $finalUri = $null
+
+    # Prefer .NET HttpClient for consistent redirect handling
+    try {
+        $handler = New-Object System.Net.Http.HttpClientHandler
+        $handler.AllowAutoRedirect = $true
+        $client = [System.Net.Http.HttpClient]::new($handler)
+        $client.DefaultRequestHeaders.UserAgent.ParseAdd('Repair-DockerScoutCLI/1.0 (+https://github.com/tataouinea/Repair-DockerScoutCLI)')
+
+        # Use HEAD to avoid downloading page content; fall back to GET if needed
+        $req = New-Object System.Net.Http.HttpRequestMessage([System.Net.Http.HttpMethod]::Head, $latestUrl)
+        try {
+            $res = $client.SendAsync($req).GetAwaiter().GetResult()
+        } catch {
+            # Fallback to GET if HEAD not supported
+            $req = New-Object System.Net.Http.HttpRequestMessage([System.Net.Http.HttpMethod]::Get, $latestUrl)
+            $res = $client.SendAsync($req).GetAwaiter().GetResult()
+        }
+        $finalUri = $res.RequestMessage.RequestUri.AbsoluteUri
+        $client.Dispose()
+    }
+    catch {
+        # Fallback: PowerShell Invoke-WebRequest
+        try {
+            if ($PSVersionTable.PSVersion.Major -ge 6) {
+                $resp = Invoke-WebRequest -Uri $latestUrl -MaximumRedirection 10
+            } else {
+                $resp = Invoke-WebRequest -UseBasicParsing -Uri $latestUrl -MaximumRedirection 10
+            }
+            # After following redirects, ResponseUri should point to the final tag URL
+            $finalUri = $resp.BaseResponse.ResponseUri.AbsoluteUri
+        }
+        catch {
+            throw "Could not resolve latest release URL: $($_.Exception.Message)"
+        }
+    }
+
+    if (-not $finalUri) { throw 'Could not determine final release URL for latest version.' }
+    $m = [regex]::Match($finalUri, '/tag/v(?<v>\d+\.\d+\.\d+)\b')
+    if (-not $m.Success) { throw "Could not parse version from URL: $finalUri" }
+    return $m.Groups['v'].Value
+}
+
 try {
     Write-Info "Checking PowerShell version and environment..."
     $psv = $PSVersionTable.PSVersion
