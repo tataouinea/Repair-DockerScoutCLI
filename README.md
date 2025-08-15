@@ -10,7 +10,7 @@ This script installs the Docker Scout CLI plugin under your user profile and con
 
 ## What it does
 
-- Detects your CPU architecture (amd64 or arm64) and selects the correct v1.18.2 ZIP from the official release.
+- Detects your CPU architecture (amd64 or arm64) and selects the correct ZIP from the latest official Docker Scout CLI release.
 - Downloads to a unique temp folder (does not overwrite existing files).
 - Installs `docker-scout.exe` to `%USERPROFILE%\.docker\scout` (creates the folder if missing; skips if already installed).
 - Updates `%USERPROFILE%\.docker\config.json` to include:
@@ -81,7 +81,7 @@ Options:
 
 ## Notes
 
-- This script targets Docker Scout CLI v1.18.2 to match the version referenced in the issue. You can adapt the version in the script later if needed.
+- This script automatically fetches the latest available Docker Scout CLI version. It resolves `https://github.com/docker/scout-cli/releases/latest`, follows the redirect to a URL like `.../releases/tag/v1.18.3`, and extracts the version from that URL. No hard-coded version is used.
 - The script supports both amd64 (x64) and arm64 Windows.
 
 ## License
