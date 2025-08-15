@@ -9,12 +9,13 @@
     What this script does
     ---------------------
     1) Detects your CPU architecture (amd64 or arm64) and selects the proper Docker Scout ZIP
-       (v1.18.2) from the official GitHub releases.
-    2) Downloads the ZIP to a unique temp folder (won't overwrite existing files).
-    3) Extracts and installs docker-scout.exe to: %USERPROFILE%\.docker\scout
+       from the latest official GitHub release.
+    2) If an older docker-scout.exe is already installed, offers to upgrade it; otherwise installs fresh.
+    3) Downloads the ZIP to a unique temp folder (won't overwrite existing files).
+    4) Extracts and installs docker-scout.exe to: %USERPROFILE%\.docker\scout
        - Creates the folder if missing.
        - If docker-scout.exe already exists there, skips re-install.
-    4) Safely updates %USERPROFILE%\.docker\config.json to include:
+    5) Safely updates %USERPROFILE%\.docker\config.json to include:
          "cliPluginsExtraDirs": ["<your_user_profile>\\.docker\\scout"]
        - Creates a timestamped backup before writing.
        - If already configured, leaves it unchanged.
@@ -24,7 +25,7 @@
     - No admin rights required; changes are confined to your user profile.
     - Always asks for confirmation before making changes (use -Yes to auto-confirm).
     - Creates backups where appropriate and skips steps already satisfied.
-    - Uses only official GitHub release URLs for Docker Scout CLI v1.18.2.
+    - Uses only official GitHub release URLs for Docker Scout CLI (latest release).
 
     References
     ----------
