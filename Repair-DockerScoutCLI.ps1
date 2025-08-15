@@ -239,14 +239,30 @@ try {
     }
 
     $targetExe = Join-Path $destDir 'docker-scout.exe'
-    $needInstall = -not (Test-Path -LiteralPath $targetExe -PathType Leaf)
-
-    if ($needInstall) {
+    $installedVersion = Get-InstalledDockerScoutVersion -ExePath $targetExe
+    $needInstall = $true
+    if ($installedVersion) {
+        if ($installedVersion -eq $version) {
+            Write-Ok "docker-scout.exe already at latest v$installedVersion. Skipping download/install."
+            $needInstall = $false
+        }
+        else {
+            Write-Info "Installed version detected: v$installedVersion; latest available: v$version"
+            if (-not (Confirm-Action "Upgrade docker-scout.exe from v$installedVersion to v$version in '$destDir'?")) {
+                Write-Warn "User chose not to upgrade. Skipping download/install."
+                $needInstall = $false
+            }
+        }
+    }
+    else {
         Write-Info "docker-scout.exe not found in destination. Preparing download and install..."
         if (-not (Confirm-Action "Download and install Docker Scout CLI v$version ($arch) to '$destDir'?")) {
             Write-Warn "User chose not to download/install. Skipping to config update."
+            $needInstall = $false
         }
-        else {
+    }
+
+    if ($needInstall) {
             # Create unique temp working area
             $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
             $tempRoot = Join-Path $env:TEMP "RepairDockerScoutCLI_${stamp}_$([Guid]::NewGuid().ToString('N'))"
@@ -281,7 +297,7 @@ try {
                 throw "Destination directory '$destDir' does not exist."
             }
 
-            Copy-Item -LiteralPath $exe.FullName -Destination $targetExe -ErrorAction Stop
+            Copy-Item -LiteralPath $exe.FullName -Destination $targetExe -Force -ErrorAction Stop
             Write-Ok "Installed: $targetExe"
 
             # Attempt cleanup of temp area
@@ -292,10 +308,6 @@ try {
             catch {
                 Write-Warn "Could not remove temp directory '$tempRoot'. You may delete it manually."
             }
-        }
-    }
-    else {
-        Write-Ok "docker-scout.exe already present. Skipping download/install."
     }
 
     # Update Docker config.json with cliPluginsExtraDirs
